@@ -30,6 +30,62 @@ static void jpgfile_error_exit(j_common_ptr cinfo)
   throw -1 ;
 }
 
+#define to565(r,g,b)                                            \
+  ((((r) >> 3) << 11) | (((g) >> 2) << 5) | ((b) >> 3))
+
+#define from565_r(x) ((((x) >> 11) & 0x1f) * 255 / 31)
+#define from565_g(x) ((((x) >> 5) & 0x3f) * 255 / 63)
+#define from565_b(x) (((x) & 0x1f) * 255 / 31)
+
+uint16_t* DisplayImage::out565(uint16_t *outbuff, bool bRle)
+{
+  uint16_t *pOut = NULL, *p = NULL, last = 0, count = 0, colour = 0;
+  if (!m_img) return NULL ; // no image
+
+  if (m_colourbitdepth == 32){
+    // convert to 16 bit colour depth
+    if (outbuff){
+      pOut = outbuff ;
+    }else{
+      if (bRle){
+	// Worst case, RLE can be 2x as big as the original file if every pixel
+	// is different
+	pOut = new uint16_t[m_width * m_height *2] ;
+	memset(pOut, 0, m_width * m_height * 2) ;
+      }else{
+	pOut = new uint16_t[m_width * m_height] ;
+	memset(pOut, 0, m_width * m_height) ;
+      }
+    }
+    p = pOut ;
+    if (!pOut) return NULL ;
+
+    for (unsigned int i=0; i < m_width * m_height; i++){
+      colour = to565(m_img[(i*4)], m_img[(i*4)+1], m_img[(i*4)+2]);
+      if (bRle){
+	if (count > 0 && colour == last && count < 65535){
+	  count++;
+	  continue;
+	}else if (count > 0){
+	  *p++ = count ;
+	  *p++ = last ;
+	}
+	last = colour ;
+	count = 1 ;
+      }else{
+	*p++ = colour ;
+      }	    
+    }
+    if (bRle && count > 0){
+      *p++ = count ;
+      *p++ = last;
+    }
+  }else{
+    return NULL ; // not yet supported
+  }
+  return pOut ;
+}
+
 uint8_t DisplayImage::to4bit(uint8_t byte)
 {
   uint8_t out ;
@@ -63,6 +119,21 @@ bool DisplayImage::createDistribution()
     // Unsupported colour depth for distribution
     return false ;
   }
+  return true ;
+}
+
+bool DisplayImage::setColourPixel(unsigned int x, unsigned int y, unsigned char r, unsigned char g, unsigned char b)
+{
+  if (m_colourbitdepth != 32){
+    // unsupported at this time
+    return false ;
+  }
+  unsigned int pixel = (x + (y*m_width)) * 4 ;
+
+  m_img[pixel] = r ;
+  m_img[pixel+1] = g;
+  m_img[pixel+2] = b ;
+
   return true ;
 }
 

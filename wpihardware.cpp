@@ -76,3 +76,27 @@ IHardwareGPIO::enValue wPi::input(uint32_t pin)
 {
   return digitalRead(pin) == 0?low:high;
 }
+
+bool wPi::register_interrupt(uint32_t pin, enEdge edge, void(*function)(void))
+{
+  int edge_type ;
+
+  switch (edge){
+  case enEdge::rising:
+    edge_type = INT_EDGE_RISING;
+    break;
+  case enEdge::falling:
+    edge_type = INT_EDGE_FALLING;
+    break ;
+  case enEdge::both:
+    edge_type = INT_EDGE_BOTH;
+    break;
+  default:
+    return false ;
+  }
+
+  if (wiringPiISR (pin, edge_type, function) < 0)
+    return false ;
+
+  return true;
+}

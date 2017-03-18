@@ -11,6 +11,7 @@ public:
   bool spiopen(uint32_t bus, uint32_t device) ;
   bool write(uint8_t byte);
   bool write(uint8_t *bytes, uint32_t len) ;
+  bool read(uint8_t *bytes, uint32_t len) ;
 
   // bidirectional xfer call, used by the write calls above
   // only they discard the rxbuf data
@@ -28,6 +29,8 @@ public:
 
 protected:
   int m_fd ;
+  uint8_t *m_rxbuffer ;
+  uint32_t m_size_buffer ;
   uint8_t m_mode ;
   uint8_t m_bitsperword;
   uint32_t m_maxspeed_hz ;

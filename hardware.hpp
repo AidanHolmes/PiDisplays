@@ -19,6 +19,10 @@ public:
   // Write a string of bytes
   virtual bool write(uint8_t *bytes, uint32_t len) = 0 ;
 
+  // Return the read bytes into the bytes buffer.
+  // Should match number of bytes written
+  virtual bool read(uint8_t *bytes, uint32_t len) = 0 ;
+
   // Configure SPI. Most libraries only partially implement these
   // and Linux drivers are limited as to what is actually available.
   virtual bool setBitOrder(bool bLSB) = 0;
@@ -53,6 +57,7 @@ class IHardwareGPIO{
 public:
   enum enDirection{gpio_output, gpio_input} ;
   enum enValue{high, low} ;
+  enum enEdge{falling, rising, both} ;
   // Don't care what numbering used. Can be chip or abstraction. 
   // This is where the user will need to code directly for the hardware
   virtual bool setup(uint32_t pin, enDirection eDir) = 0;
@@ -63,6 +68,8 @@ public:
 
   // Helper function to toggle enValues from low to high or high to low
   static enValue toggle(enValue val) ;
+
+  virtual bool register_interrupt(uint32_t pin, enEdge edge, void(*function)(void)) = 0;
 };
 
 class IHardwareTimer{

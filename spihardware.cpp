@@ -18,9 +18,12 @@ spiHw::spiHw()
   m_bitsperword = 0;
   m_maxspeed_hz = 0;
   m_speed_hz = 0;
+  m_rxbuffer = NULL ;
+  m_size_buffer = 0;
 }
 spiHw::~spiHw()
 {
+  if (m_rxbuffer) delete[] m_rxbuffer ;
   if (m_fd > 0){
     close(m_fd) ;
   }
@@ -100,13 +103,23 @@ bool spiHw::write(uint8_t byte)
 
 bool spiHw::write(uint8_t *bytes, uint32_t len)
 {
-  bool bRet = false ;
-  
-  uint8_t *rxbuf = new uint8_t[len];
-  if (!rxbuf) return false ;
-  bRet = xfer(bytes, rxbuf, len) ;
-  delete[] rxbuf ;
-  return bRet ;
+  if (m_size_buffer < len){
+    if (m_rxbuffer) delete[] m_rxbuffer ;
+    m_rxbuffer = new uint8_t[len];
+    if (!m_rxbuffer){
+      m_size_buffer = 0 ;
+      return false ;
+    }
+  }
+  return xfer(bytes, m_rxbuffer, len) ;
+}
+
+bool spiHw::read(uint8_t *bytes, uint32_t len)
+{
+  if (!m_rxbuffer || len > m_size_buffer) return false ;
+
+  memcpy(bytes, m_rxbuffer, len) ;
+  return true;
 }
 
 bool spiHw::xfer(uint8_t *bytes, uint8_t *rxbuf, uint32_t len)
@@ -123,8 +136,6 @@ bool spiHw::xfer(uint8_t *bytes, uint8_t *rxbuf, uint32_t len)
   xfer.delay_usecs = 0; // set to zero
   xfer.speed_hz = m_speed_hz > 0?m_speed_hz:m_maxspeed_hz ;
   xfer.bits_per_word = m_bitsperword ;
-  //xfer.tx_nbits = 0 ;
-  //xfer.rx_nbits = 0 ;
   
   status = ioctl(m_fd, SPI_IOC_MESSAGE(1), &xfer);
   if (status < 0){
@@ -137,7 +148,7 @@ bool spiHw::xfer(uint8_t *bytes, uint8_t *rxbuf, uint32_t len)
   // reading 0 bytes doesnt matter but brings cs down
   // tomdean:
   // Stop generating an extra CS except in mode CS_HIGH
-  if (m_mode & SPI_CS_HIGH) status = read(m_fd, &rxbuf[0], 0);
+  if (m_mode & SPI_CS_HIGH) status = ::read(m_fd, &rxbuf[0], 0);
 
   return true ;
 }

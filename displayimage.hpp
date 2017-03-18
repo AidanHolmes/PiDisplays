@@ -4,9 +4,14 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#ifdef DISPLAY_SDD1306OLED
 class SDD1306OLED ; // OLED display using SDD1306
-class DisplayFont ; 
+#endif
+#ifdef DISPLAY_PCF8833LCD
 class PCF8833LCD ; // Philips Colour LCD Display
+#endif
+
+class DisplayFont ; 
 
 // Generous 10MB image limit for single image files
 #define XMB_LOAD_MAX_SIZE 10485760
@@ -15,8 +20,12 @@ class DisplayImage{
 public:
   DisplayImage() ;
   ~DisplayImage();
+#ifdef DISPLAY_SDD1306OLED
   friend class SDD1306OLED ;
+#endif
+#ifdef DISPLAY_PCF8833LCD
   friend class PCF8833LCD ;
+#endif
   friend class DisplayFont ;
 
   // Create blank image. Basically a call to allocateImg but with a follow up to
@@ -54,6 +63,9 @@ public:
   // Set the value of a pixel. Use bSet to set as ON of OFF with true/false values
   bool setPixel(unsigned int x, unsigned int y, bool bSet) ;
 
+  // Set a colour pixel
+  bool setColourPixel(unsigned int x, unsigned int y, unsigned char r, unsigned char g, unsigned char b) ;
+
   // Create distribution. Returns false if no image or colour depth unsupported
   // This is for colour RGB images. Returns false for 1bit images.
   bool createDistribution() ;
@@ -72,6 +84,11 @@ public:
 
   // Utility function. Coverts 8bit colour to 4bit.
   static uint8_t to4bit(uint8_t byte) ;
+
+  // Create 16 bit colour image. Not used internally so image
+  // will retain 32 bits. Buffer must be delete[] after use.
+  uint16_t* out565(uint16_t *outbuff=NULL, bool bRle=false);
+
 
 protected:
   // Draw vertical lines. Used internally, but not needed for users as

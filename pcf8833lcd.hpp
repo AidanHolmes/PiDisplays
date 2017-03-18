@@ -1,6 +1,9 @@
 #ifndef __PCF8833_LCD_HW_HPP
 #define __PCF8833_LCD_HW_HPP
 
+// macro required for display image to support friend class
+#define DISPLAY_PCF8833LCD
+
 #include "hardware.hpp"
 #include "displayimage.hpp"
 #include <stdint.h>

@@ -1,6 +1,9 @@
 #ifndef __SDD1306_OLED_HW_HPP
 #define __SDD1306_OLED_HW_HPP
 
+// macro required for display image to support friend class
+#define DISPLAY_SDD1306OLED
+
 #include "hardware.hpp"
 #include "displayimage.hpp"
 #include <stdint.h>
