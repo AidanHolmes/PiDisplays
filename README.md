@@ -2,20 +2,19 @@
 
 This is a base hardware set of libraries and functions to support various displays.
 The idea is to have a set of image manipulation functions to support the interfaces without the requirement for too many support libraries.
-For instance the Freetype libraries are only required for font conversion.
  
-Display.hpp contains classes used by the display hardware. This is very basic and at the moment supports loading JPG files. 
+The hardware libraries use the custom graphicslib library libdisp.
+This can be found and cloned from github.com
+> git clone https://github.com/AidanHolmes/graphicslib
+
+The default location for this is in a sibling directory to the hardware lib and searches in:
+../graphicslib
 
 Main dependencies
 * libjpeg
 * libwiringPi
-
-pcf2oled:-
-This supports conversion of basic pcf.gz to a binary format used for the library. Direct reading of fonts is not included
-
-xbm2bin:-
-Converts XBM files to a binary format used in the display libraries.
-
+* libfreetype2
+* libdisp (custom lib)
 
 Current displays supported are
 * Nokia 6100 using PCF8833 - Arduino shield display. Credit to James P. Lynch on his work.

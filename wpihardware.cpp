@@ -82,13 +82,13 @@ bool wPi::register_interrupt(uint32_t pin, enEdge edge, void(*function)(void))
   int edge_type ;
 
   switch (edge){
-  case enEdge::rising:
+  case rising:
     edge_type = INT_EDGE_RISING;
     break;
-  case enEdge::falling:
+  case falling:
     edge_type = INT_EDGE_FALLING;
     break ;
-  case enEdge::both:
+  case both:
     edge_type = INT_EDGE_BOTH;
     break;
   default:

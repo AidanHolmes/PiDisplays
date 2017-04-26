@@ -95,7 +95,7 @@ bool aniTest(PCF8833LCD &lcd, IHardwareTimer &pi)
   return true ;
 }
 
-bool jpgTest(PCF8833LCD &lcd, char szFile[])
+bool jpgTest(PCF8833LCD &lcd, const char szFile[])
 {
   DisplayImage img ;
 
