@@ -110,6 +110,7 @@ bool spiHw::write(uint8_t *bytes, uint32_t len)
       m_size_buffer = 0 ;
       return false ;
     }
+    m_size_buffer = len ;
   }
   return xfer(bytes, m_rxbuffer, len) ;
 }
